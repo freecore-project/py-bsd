@@ -29,17 +29,13 @@ import enum
 import cython
 import pwd
 import grp
-import six
 from libc.string cimport memcpy
 from libc.errno cimport errno
 from libc.stdlib cimport malloc, free
 cimport defs
 
-IF PY2:
-    file_types = (file, )
-ELSE:
-    import io
-    file_types = (io.IOBase, )
+import io
+file_types = (io.IOBase, )
 
 class Namespaces(enum.IntEnum):
     USER = defs.EXTATTR_NAMESPACE_USER
@@ -252,7 +248,7 @@ def set(fobj, namespace = Namespaces.USER, attr = None, follow = True):
     if attr is None:
         return False
 
-    for k, v in attr.iteritems():
+    for k, v in attr.items():
         if type(v) is not str:
             try:
                 v = str(v)
@@ -263,9 +259,9 @@ def set(fobj, namespace = Namespaces.USER, attr = None, follow = True):
         data_len = len(v)
         
         if isinstance(fobj, file_types):
-            kr = defs.exattr_set_fd(fobj.fileno(), namespace, attr_name, attr_data, data_len)
+            kr = defs.extattr_set_fd(fobj.fileno(), namespace, attr_name, attr_data, data_len)
         elif type(fobj) is int:
-            kr = defs.exattr_set_fd(fobj, namespace, attr_name, attr_data, data_len)
+            kr = defs.extattr_set_fd(fobj, namespace, attr_name, attr_data, data_len)
         elif type(fobj) is str:
             if follow:
                 kr = defs.extattr_set_file(fobj, namespace, attr_name, attr_data, data_len)

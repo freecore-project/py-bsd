@@ -25,9 +25,9 @@ cdef extern from "errno.h":
     extern int errno
     
 cdef extern from "pwd.h":
-    ctypedef int time_t
-    ctypedef int uid_t
-    ctypedef int gid_t
+    ctypedef long time_t
+    ctypedef unsigned int uid_t
+    ctypedef unsigned int gid_t
     
     cdef struct passwd:
         char	*pw_name

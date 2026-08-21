@@ -26,11 +26,10 @@
 
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate = True
-from distutils.core import setup
+from setuptools import setup
 from Cython.Build import cythonize
 from Cython.Distutils.extension import Extension
 from Cython.Distutils import build_ext
-import six
 
 
 extensions = [
@@ -46,7 +45,7 @@ extensions = [
     Extension(
         "bsd.dialog",
         ["bsd/dialog.pyx"],
-        extra_link_args=["-ldialog"]
+        extra_link_args=["-lcdialog"]
     ),
     Extension(
         "bsd.kld",
@@ -59,7 +58,6 @@ extensions = [
     Extension(
         "bsd.extattr",
         ["bsd/extattr.pyx"],
-        cython_compile_time_env={'PY2': six.PY2}
     ),
     Extension(
         "bsd.devinfo",
@@ -70,6 +68,15 @@ extensions = [
         "bsd.bpf",
         ["bsd/bpf.pyx"],
     ),
+    # NIS/YP is still in FreeBSD base -- rpcsvc/ypclnt.h, libypclnt's own
+    # /usr/include/ypclnt.h, libypclnt and ypserv are all present in the
+    # pinned FB15 tree, and bsd/yp_client.c includes both headers. This was
+    # briefly wrapped in an os.path.exists() on a header path: a guess rather
+    # than a probe, and one that would have dropped the extension with no
+    # build error and no warning had it ever evaluated false, silently
+    # degrading middleware's nis.* surface on the next image. Build it
+    # unconditionally as 13.x does; a missing header or library must fail the
+    # build loudly. See freecore/the internal development record.
     Extension(
         "bsd.nis",
         ["bsd/nis.pyx", "bsd/yp_client.c"],
