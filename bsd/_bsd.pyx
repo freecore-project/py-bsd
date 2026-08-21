@@ -31,7 +31,7 @@ import math
 import socket
 import ipaddress
 import cython
-from datetime import datetime
+from datetime import datetime, timezone
 from libc.errno cimport errno
 from libc.stdlib cimport malloc, free
 from libc.string cimport memcpy
@@ -565,7 +565,7 @@ cdef class Process(object):
 
     property started_at:
         def __get__(self):
-            return datetime.utcfromtimestamp(convert_timeval(&self.proc.ki_start))
+            return datetime.fromtimestamp(convert_timeval(&self.proc.ki_start), tz=timezone.utc)
 
     property rusage:
         def __get__(self):
@@ -742,6 +742,14 @@ cpdef kinfo_getproc(pid):
 
     if proc == NULL:
         raise LookupError("PID {0} not found".format(pid))
+
+    if proc.ki_structsize != sizeof(defs.kinfo_proc):
+        free(proc)
+        raise RuntimeError(
+            "kinfo_proc size mismatch: kernel={0} compiled={1}".format(
+                proc.ki_structsize, sizeof(defs.kinfo_proc)
+            )
+        )
 
     if ps == NULL:
         raise OSError(errno, os.strerror(errno))

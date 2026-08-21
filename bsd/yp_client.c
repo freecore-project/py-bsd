@@ -121,15 +121,15 @@ _do_ypbind(const char *domain, struct sockaddr_storage *ss)
 	/*
 	 * Okay, at this point, bind_response has the information we need.
 	 */
-	bzero(&ypbind_sin, sizeof(ypbind_sin));
+	memset(&ypbind_sin, 0, sizeof(ypbind_sin));
 	ypbind_sin.sin_family = AF_INET;	// Still only IPv6
-	bcopy(&bind_response.ypbind_resp_u.ypbind_bindinfo.ypbind_binding_addr,
-	      &ypbind_sin.sin_addr.s_addr,
-	      sizeof(ypbind_sin.sin_addr.s_addr));
-	bcopy(&bind_response.ypbind_resp_u.ypbind_bindinfo.ypbind_binding_port,
-	      &ypbind_sin.sin_port,
-	      sizeof(ypbind_sin.sin_port));
-	bcopy(&ypbind_sin, ss, sizeof(ypbind_sin));
+	memcpy(&ypbind_sin.sin_addr.s_addr,
+	       &bind_response.ypbind_resp_u.ypbind_bindinfo.ypbind_binding_addr,
+	       sizeof(ypbind_sin.sin_addr.s_addr));
+	memcpy(&ypbind_sin.sin_port,
+	       &bind_response.ypbind_resp_u.ypbind_bindinfo.ypbind_binding_port,
+	       sizeof(ypbind_sin.sin_port));
+	memcpy(ss, &ypbind_sin, sizeof(ypbind_sin));
 	return YP_CLIENT_SUCCESS;
 }
 
@@ -308,7 +308,7 @@ yp_client_init(const char *domain, const char *server, int *errorp)
 			goto done;
 		}
 		// Yes, we only use one address; it's possible this should change
-		bcopy(ai->ai_addr, &ss, ai->ai_addrlen);
+		memcpy(&ss, ai->ai_addr, ai->ai_addrlen);
 		freeaddrinfo(ai);
 		server_name = server;
 	}
@@ -422,7 +422,7 @@ yp_client_match(void *ctx,
 			tmp_len = yprv.val.valdat_len;
 			tmp = calloc(1, tmp_len+1);
 			if (tmp) {
-				bcopy(yprv.val.valdat_val, tmp, tmp_len);
+				memcpy(tmp, yprv.val.valdat_val, tmp_len);
 				tmp[tmp_len] = 0;
 				*outvallen = tmp_len;
 				*outval = tmp;
@@ -475,7 +475,7 @@ yp_client_first(void *ctx,
 			tmp_len = yprkv.key.keydat_len;
 			tmp = calloc(1, tmp_len+1);
 			if (tmp) {
-				bcopy(yprkv.key.keydat_val, tmp, tmp_len);
+				memcpy(tmp, yprkv.key.keydat_val, tmp_len);
 				tmp[tmp_len] = 0;
 				*outkey = tmp;
 				*outkeylen = tmp_len;
@@ -484,7 +484,7 @@ yp_client_first(void *ctx,
 				tmp_len = yprkv.val.valdat_len;
 				tmp = calloc(1, tmp_len+1);
 				if (tmp) {
-					bcopy(yprkv.val.valdat_val, tmp, tmp_len);
+					memcpy(tmp, yprkv.val.valdat_val, tmp_len);
 					tmp[tmp_len] = 0;
 					*outvallen = tmp_len;
 					*outval = tmp;
@@ -567,16 +567,16 @@ yp_client_next(void *ctx,
 		tmp_len = yprkv.key.keydat_len;
 		tmp = calloc(1, tmp_len+1);
 		if (tmp) {
-			bcopy(yprkv.key.keydat_val, tmp, tmp_len);
+			memcpy(tmp, yprkv.key.keydat_val, tmp_len);
 			tmp[tmp_len] = 0;
 			*outkey = tmp;
 			*outkeylen = tmp_len;
-			
+
 
 			tmp_len = yprkv.val.valdat_len;
 			tmp = calloc(1, tmp_len+1);
 			if (tmp) {
-				bcopy(yprkv.val.valdat_val, tmp, tmp_len);
+				memcpy(tmp, yprkv.val.valdat_val, tmp_len);
 				tmp[tmp_len] = 0;
 				*outvallen = tmp_len;
 				*outval = tmp;

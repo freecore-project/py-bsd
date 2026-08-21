@@ -415,7 +415,7 @@ def filter(name=None):
 
         try:
             ret = sysctl([x for x in name2[:l2]])
-        except OSError, e:
+        except OSError as e:
             if e.errno == ENOENT:
                 return
 

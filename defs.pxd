@@ -237,73 +237,16 @@ cdef extern from "sys/user.h":
 
     cdef struct kinfo_proc:
         int	ki_structsize
-        int	ki_layout
-        void	*ki_wchan
         pid_t	ki_pid
         pid_t	ki_ppid
-        pid_t	ki_pgid
-        pid_t	ki_tpgid
-        pid_t	ki_sid
-        pid_t	ki_tsid
-        short	ki_jobc
-        short	ki_spare_short1
-        dev_t	ki_tdev
-        sigset_t ki_siglist
-        sigset_t ki_sigmask
-        sigset_t ki_sigignore
-        sigset_t ki_sigcatch
         uid_t	ki_uid
-        uid_t	ki_ruid
-        uid_t	ki_svuid
-        gid_t	ki_rgid
-        gid_t	ki_svgid
-        short	ki_ngroups
-        short	ki_spare_short2
-        gid_t	ki_groups[KI_NGROUPS]
-        vm_size_t ki_size
-        segsz_t ki_rssize
-        segsz_t ki_swrss
-        segsz_t ki_tsize
-        segsz_t ki_dsize
-        segsz_t ki_ssize
-        u_short	ki_xstat
-        u_short	ki_acflag
-        u_int	ki_estcpu
-        u_int	ki_slptime
-        u_int	ki_swtime
-        u_int	ki_cow
-        u_int64_t ki_runtime
-        timeval ki_start
-        timeval ki_childtime
-        long	ki_flag
-        long	ki_kiflag
-        int	ki_traceflag
-        char	ki_stat
-        signed char ki_nice
-        char	ki_lock
-        char	ki_rqindex
-        u_char	ki_oncpu
-        u_char	ki_lastcpu
         char	ki_tdname[TDNAMLEN+1]
-        char	ki_moretdname[MAXCOMLEN-TDNAMLEN+1]
-        char	ki_wmesg[WMESGLEN+1]
-        char	ki_login[LOGNAMELEN+1]
-        char	ki_lockname[LOCKNAMELEN+1]
         char	ki_comm[COMMLEN+1]
-        char	ki_emul[KI_EMULNAMELEN+1]
-        char	ki_loginclass[LOGINCLASSLEN+1]
-        int	ki_flag2
-        int	ki_fibnum
-        u_int	ki_cr_flags
-        int	ki_jid
-        int	ki_numthreads
+        char	ki_moretdname[MAXCOMLEN-TDNAMLEN+1]
         lwpid_t	ki_tid
+        timeval ki_start
         rusage ki_rusage
         rusage ki_rusage_ch
-        void	*ki_kstack
-        void	*ki_udata
-        long	ki_sflag
-        long	ki_tdflags
 
 
 cdef extern from "libutil.h" nogil:
@@ -414,8 +357,8 @@ cdef extern from "libprocstat.h" nogil:
         uint64_t vn_fileid
         uint64_t vn_size
         char *vn_mntdir
-        uint32_t vn_dev
-        uint32_t vn_fsid
+        uint64_t vn_dev
+        uint64_t vn_fsid
         int	vn_type
         uint16_t vn_mode
         char vn_devname[SPECNAMELEN + 1]
@@ -490,7 +433,7 @@ cdef extern from "sys/extattr.h" nogil:
     char *EXTATTR_NAMESPACE_SYSTEM_STRING
     
     ssize_t extattr_get_fd(int fd, int attrnamespace, const char *attrname, void *data, size_t nbytes)
-    ssize_t exattr_set_fd(int fd, int attrnamespace, const char *attrname, const void *data, size_t nbytes)
+    ssize_t extattr_set_fd(int fd, int attrnamespace, const char *attrname, const void *data, size_t nbytes)
     int extattr_delete_fd(int fd, int attrnamespace, const char *attrname)
     ssize_t extattr_list_fd(int fd, int attrnamespace, void *data, size_t nbytes)
 
@@ -731,8 +674,8 @@ cdef extern from "kvm.h" nogil:
 
     cdef struct kvm_swap:
         char ksw_devname[32]
-        int ksw_used
-        int ksw_total
+        u_int ksw_used
+        u_int ksw_total
         int ksw_flags
 
     int	kvm_dpcpu_setcpu(kvm_t *, unsigned int)
@@ -869,7 +812,7 @@ cdef extern from "net/bpf.h":
         uint32_t k
 
     cdef struct bpf_program:
-        int bf_len
+        u_int bf_len
         bpf_insn *bf_insns
 
     int BPF_WORDALIGN(int x)
@@ -897,11 +840,19 @@ cdef extern from "dialog.h" nogil:
     ctypedef struct DIALOG_FORMITEM:
         unsigned type
         char *name
-        char *help
+        int name_len
+        int name_y
+        int name_x
+        bint name_free
         char *text
-        int name_len, name_x, name_y, name_free
-        int text_len, text_x, text_y, text_flen, text_ilen, text_free
-        int help_free
+        int text_len
+        int text_y
+        int text_x
+        int text_flen
+        int text_ilen
+        bint text_free
+        char *help
+        bint help_free
         
     ctypedef struct DIALOG_WINDOWS:
         pass
